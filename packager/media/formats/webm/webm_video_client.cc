@@ -229,10 +229,10 @@ bool WebMVideoClient::OnUInt(int id, int64_t val) {
     case kWebMIdColorPrimaries:
       dst = &color_primaries_;
       break;
-    case kWebMIdColorMaxCLL:
-    case kWebMIdColorMaxFALL:
-      NOTIMPLEMENTED() << "HDR is not supported yet.";
-      return true;
+//    case kWebMIdColorMaxCLL:
+//    case kWebMIdColorMaxFALL:
+//      NOTIMPLEMENTED() << "HDR is not supported yet.";
+//      return true;
     default:
       return true;
   }
