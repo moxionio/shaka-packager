@@ -45,6 +45,8 @@ void WebMVideoClient::Reset() {
   color_range_ = -1;
   transfer_characteristics_ = -1;
   color_primaries_ = -1;
+  color_max_cll_ = -1;
+  color_max_fall_ = -1;
 }
 
 std::shared_ptr<VideoStreamInfo> WebMVideoClient::GetVideoStreamInfo(
@@ -229,10 +231,12 @@ bool WebMVideoClient::OnUInt(int id, int64_t val) {
     case kWebMIdColorPrimaries:
       dst = &color_primaries_;
       break;
-//    case kWebMIdColorMaxCLL:
-//    case kWebMIdColorMaxFALL:
-//      NOTIMPLEMENTED() << "HDR is not supported yet.";
-//      return true;
+	case kWebMIdColorMaxCLL:
+	  dst = &color_max_cll_;
+	  break;
+    case kWebMIdColorMaxFALL:
+	  dst = &color_max_fall_;
+	  break;
     default:
       return true;
   }

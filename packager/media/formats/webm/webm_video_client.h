@@ -71,6 +71,8 @@ class WebMVideoClient : public WebMParserClient {
   int64_t color_range_ = -1;
   int64_t transfer_characteristics_ = -1;
   int64_t color_primaries_ = -1;
+  int64_t color_max_cll_ = -1;
+  int64_t color_max_fall_ = -1;
 
   DISALLOW_COPY_AND_ASSIGN(WebMVideoClient);
 };
