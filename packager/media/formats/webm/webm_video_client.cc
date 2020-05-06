@@ -163,11 +163,11 @@ VPCodecConfigurationRecord WebMVideoClient::GetVpCodecConfig(
 }
 
 WebMParserClient* WebMVideoClient::OnListStart(int id) {
-  return id == kWebMIdColor ? this : WebMParserClient::OnListStart(id);
+  return id == kWebMIdColor || id == kWebMIdColorMasteringMetadata ? this : WebMParserClient::OnListStart(id);
 }
 
 bool WebMVideoClient::OnListEnd(int id) {
-  return id == kWebMIdColor ? true : WebMParserClient::OnListEnd(id);
+  return id == kWebMIdColor || id == kWebMIdColorMasteringMetadata ? true : WebMParserClient::OnListEnd(id);
 }
 
 bool WebMVideoClient::OnUInt(int id, int64_t val) {
@@ -231,12 +231,12 @@ bool WebMVideoClient::OnUInt(int id, int64_t val) {
     case kWebMIdColorPrimaries:
       dst = &color_primaries_;
       break;
-	case kWebMIdColorMaxCLL:
-	  dst = &color_max_cll_;
-	  break;
+    case kWebMIdColorMaxCLL:
+      dst = &color_max_cll_;
+      break;
     case kWebMIdColorMaxFALL:
-	  dst = &color_max_fall_;
-	  break;
+      dst = &color_max_fall_;
+      break;
     default:
       return true;
   }

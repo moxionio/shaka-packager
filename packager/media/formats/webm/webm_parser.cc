@@ -379,6 +379,19 @@ static const ElementIdInfo kSimpleTagIds[] = {
   {BINARY, kWebMIdTagBinary},
 };
 
+static const ElementIdInfo kColorMasteringMetadataIds[] {
+  {FLOAT, kWebmIdPrimaryRChromaticityX},
+  {FLOAT, kWebmIdPrimaryRChromaticityY},
+  {FLOAT, kWebmIdPrimaryGChromaticityX},
+  {FLOAT, kWebmIdPrimaryGChromaticityY},
+  {FLOAT, kWebmIdPrimaryBChromaticityX},
+  {FLOAT, kWebmIdPrimaryBChromaticityY},
+  {FLOAT, kWebmIdWhitePointChromaticityX},
+  {FLOAT, kWebmIdWhitePointChromaticityY},
+  {FLOAT, kWebmIdLuminanceMax},
+  {FLOAT, kWebmIdLuminanceMin},
+};
+
 #define LIST_ELEMENT_INFO(id, level, id_info) \
     { (id), (level), (id_info), arraysize(id_info) }
 
@@ -401,6 +414,7 @@ static const ListElementInfo kListElementInfo[] = {
   LIST_ELEMENT_INFO(kWebMIdTrackTranslate, 3, kTrackTranslateIds),
   LIST_ELEMENT_INFO(kWebMIdVideo, 3, kVideoIds),
   LIST_ELEMENT_INFO(kWebMIdColor, 4, kColorIds),
+  LIST_ELEMENT_INFO(kWebMIdColorMasteringMetadata, 5, kColorMasteringMetadataIds),
   LIST_ELEMENT_INFO(kWebMIdAudio, 3, kAudioIds),
   LIST_ELEMENT_INFO(kWebMIdTrackOperation, 3, kTrackOperationIds),
   LIST_ELEMENT_INFO(kWebMIdTrackCombinePlanes, 4, kTrackCombinePlanesIds),
@@ -427,7 +441,7 @@ static const ListElementInfo kListElementInfo[] = {
   LIST_ELEMENT_INFO(kWebMIdTags, 1, kTagsIds),
   LIST_ELEMENT_INFO(kWebMIdTag, 2, kTagIds),
   LIST_ELEMENT_INFO(kWebMIdTargets, 3, kTargetsIds),
-  LIST_ELEMENT_INFO(kWebMIdSimpleTag, 3, kSimpleTagIds),
+  LIST_ELEMENT_INFO(kWebMIdSimpleTag, 3, kSimpleTagIds)
 };
 
 // Parses an element header id or size field. These fields are variable length
