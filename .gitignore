@@ -33,3 +33,4 @@
 /packager/tools/clang/
 /packager/tools/gyp/
 /packager/tools/valgrind/
+/.idea/
