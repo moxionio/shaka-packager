@@ -52,6 +52,21 @@ void MergeField(const std::string& name,
   }
 }
 
+void MergeHDRMetadata(const base::Optional<HDRMetadata>& source_value,
+              base::Optional<HDRMetadata>* dest_value) {
+  if (*dest_value) {
+    if (source_value && *source_value != **dest_value) {
+      LOG(WARNING) << "VPx HDR metadata is inconsistent";
+      (*source_value).log();
+      LOG(INFO) << "vs";
+      (**dest_value).log();
+    }
+  } else {
+    // Only set dest_value if it is not set.
+    *dest_value = source_value;
+  }
+}
+
 enum VP9Level {
   LEVEL_UNKNOWN = 0,
   LEVEL_1 = 10,
@@ -127,6 +142,22 @@ VP9Level LevelFromCharacteristics(uint64_t luma_sample_rate,
 
 }  // namespace
 
+void MasteringMetadata::log() const {
+  LOG(INFO) << "primary_r_chromaticity " << primary_r_chromaticity_x << ", " << primary_r_chromaticity_y;
+  LOG(INFO) << "primary_g_chromaticity " << primary_g_chromaticity_x << ", " << primary_g_chromaticity_y;
+  LOG(INFO) << "primary_b_chromaticity " << primary_b_chromaticity_x << ", " << primary_b_chromaticity_y;
+  LOG(INFO) << "primary_white_point_chromaticity " << white_point_chromaticity_x << ", " << white_point_chromaticity_y;
+  LOG(INFO) << "luminance_max " << luminance_max;
+  LOG(INFO) << "luminance_min " << luminance_min;
+}
+
+void HDRMetadata::log() const {
+  LOG(INFO) << "HDR Metadata";
+  LOG(INFO) << "max_content_light_level " << max_content_light_level;
+  LOG(INFO) << "max_frame_average_light_level " << max_frame_average_light_level;
+  mastering_metadata.log();
+}
+
 VPCodecConfigurationRecord::VPCodecConfigurationRecord() {}
 
 VPCodecConfigurationRecord::VPCodecConfigurationRecord(
@@ -138,7 +169,8 @@ VPCodecConfigurationRecord::VPCodecConfigurationRecord(
     uint8_t color_primaries,
     uint8_t transfer_characteristics,
     uint8_t matrix_coefficients,
-    const std::vector<uint8_t>& codec_initialization_data)
+    const std::vector<uint8_t>& codec_initialization_data,
+    const HDRMetadata& hdr_metadata)
     : profile_(profile),
       level_(level),
       bit_depth_(bit_depth),
@@ -147,7 +179,8 @@ VPCodecConfigurationRecord::VPCodecConfigurationRecord(
       color_primaries_(color_primaries),
       transfer_characteristics_(transfer_characteristics),
       matrix_coefficients_(matrix_coefficients),
-      codec_initialization_data_(codec_initialization_data) {}
+      codec_initialization_data_(codec_initialization_data),
+      hdr_metadata_(hdr_metadata) {}
 
 VPCodecConfigurationRecord::~VPCodecConfigurationRecord(){};
 
@@ -329,6 +362,7 @@ void VPCodecConfigurationRecord::MergeFrom(
              &transfer_characteristics_);
   MergeField("matrix coefficients", other.matrix_coefficients_,
              &matrix_coefficients_);
+  MergeHDRMetadata(other.hdr_metadata_, &hdr_metadata_);
 
   if (codec_initialization_data_.empty() ||
       !other.codec_initialization_data_.empty()) {

@@ -45,8 +45,20 @@ void WebMVideoClient::Reset() {
   color_range_ = -1;
   transfer_characteristics_ = -1;
   color_primaries_ = -1;
-  color_max_cll_ = -1;
-  color_max_fall_ = -1;
+  
+  primary_r_chromaticity_x_ = -1;
+  primary_r_chromaticity_y_ = -1;
+  primary_g_chromaticity_x_ = -1;
+  primary_g_chromaticity_y_ = -1;
+  primary_b_chromaticity_x_ = -1;
+  primary_b_chromaticity_y_ = -1;
+  white_point_chromaticity_x_ = -1;
+  white_point_chromaticity_y_ = -1;
+  luminance_max_ = -1;
+  luminance_min_ = -1;
+
+  max_content_light_level_ = -1;
+  max_frame_average_light_level_ = -1;
 }
 
 std::shared_ptr<VideoStreamInfo> WebMVideoClient::GetVideoStreamInfo(
@@ -159,7 +171,40 @@ VPCodecConfigurationRecord WebMVideoClient::GetVpCodecConfig(
   if (color_primaries_ != -1) {
     vp_config.set_color_primaries(color_primaries_);
   }
+
+  if (HasHDRMetadata()) {
+    HDRMetadata hdrMetadata;
+    MasteringMetadata& mastering_metadata = hdrMetadata.mastering_metadata;
+    
+    mastering_metadata.primary_r_chromaticity_x = primary_r_chromaticity_x_;
+    mastering_metadata.primary_r_chromaticity_y = primary_r_chromaticity_y_;
+    mastering_metadata.primary_g_chromaticity_x = primary_g_chromaticity_x_;
+    mastering_metadata.primary_g_chromaticity_y = primary_g_chromaticity_y_;
+    mastering_metadata.primary_b_chromaticity_x = primary_b_chromaticity_x_;
+    mastering_metadata.primary_b_chromaticity_y = primary_b_chromaticity_y_;
+    mastering_metadata.white_point_chromaticity_x = white_point_chromaticity_x_;
+    mastering_metadata.white_point_chromaticity_y = white_point_chromaticity_y_;
+    mastering_metadata.luminance_max = luminance_max_;
+    mastering_metadata.luminance_min = luminance_min_;
+
+    hdrMetadata.max_content_light_level = max_content_light_level_;
+    hdrMetadata.max_frame_average_light_level = max_frame_average_light_level_;
+    
+    vp_config.set_hdr_metadata(hdrMetadata);
+  }
+  
   return vp_config;
+}
+
+bool WebMVideoClient::HasHDRMetadata() {
+  return
+    primary_r_chromaticity_x_ > -1 && primary_r_chromaticity_y_ > -1 &&
+    primary_g_chromaticity_x_ > -1 && primary_g_chromaticity_y_ > -1 &&
+    primary_b_chromaticity_x_ > -1 && primary_b_chromaticity_y_ > -1 &&
+    white_point_chromaticity_x_ > -1 && white_point_chromaticity_y_ > -1 &&
+    luminance_max_ > -1 && luminance_min_ > -1 &&
+    max_content_light_level_ > -1 &&
+    max_frame_average_light_level_ > -1;
 }
 
 WebMParserClient* WebMVideoClient::OnListStart(int id) {
@@ -232,10 +277,10 @@ bool WebMVideoClient::OnUInt(int id, int64_t val) {
       dst = &color_primaries_;
       break;
     case kWebMIdColorMaxCLL:
-      dst = &color_max_cll_;
+      dst = &max_content_light_level_;
       break;
     case kWebMIdColorMaxFALL:
-      dst = &color_max_fall_;
+      dst = &max_frame_average_light_level_;
       break;
     default:
       return true;
@@ -257,7 +302,41 @@ bool WebMVideoClient::OnBinary(int id, const uint8_t* data, int size) {
 }
 
 bool WebMVideoClient::OnFloat(int id, double val) {
-  // Accept float fields we don't care about for now.
+  switch (id) {
+    case kWebMIdPrimaryRChromaticityX:
+      primary_r_chromaticity_x_ = val;
+      break;
+    case kWebMIdPrimaryRChromaticityY:
+      primary_r_chromaticity_y_ = val;
+      break;
+    case kWebMIdPrimaryGChromaticityX:
+      primary_g_chromaticity_x_ = val;
+      break;
+    case kWebMIdPrimaryGChromaticityY:
+      primary_g_chromaticity_y_ = val;
+      break;
+    case kWebMIdPrimaryBChromaticityX:
+      primary_b_chromaticity_x_ = val;
+      break;
+    case kWebMIdPrimaryBChromaticityY:
+      primary_b_chromaticity_y_ = val;
+      break;
+    case kWebMIdWhitePointChromaticityX:
+      white_point_chromaticity_x_ = val;
+      break;
+    case kWebMIdWhitePointChromaticityY:
+      white_point_chromaticity_y_ = val;
+      break;
+    case kWebMIdLuminanceMax:
+      luminance_max_ = val;
+      break;
+    case kWebMIdLuminanceMin:
+      luminance_min_ = val;
+      break;
+    default:
+      DVLOG(1) << "Unexpected id in MasteringMetadata: 0x" << std::hex << id;
+      return false;
+  }
   return true;
 }
 

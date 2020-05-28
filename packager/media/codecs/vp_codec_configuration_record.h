@@ -149,6 +149,59 @@ enum AVChromaLocation {
   AVCHROMA_LOC_NB
 };
 
+// SMPTE ST 2086 mastering metadata.
+struct MasteringMetadata {
+  float primary_r_chromaticity_x = 0;
+  float primary_r_chromaticity_y = 0;
+  float primary_g_chromaticity_x = 0;
+  float primary_g_chromaticity_y = 0;
+  float primary_b_chromaticity_x = 0;
+  float primary_b_chromaticity_y = 0;
+  float white_point_chromaticity_x = 0;
+  float white_point_chromaticity_y = 0;
+  float luminance_max = 0;
+  float luminance_min = 0;
+  MasteringMetadata() = default;
+  MasteringMetadata(const MasteringMetadata& rhs) = default;
+  bool operator==(const MasteringMetadata& rhs) const {
+    return ((primary_r_chromaticity_x == rhs.primary_r_chromaticity_x) &&
+            (primary_r_chromaticity_y == rhs.primary_r_chromaticity_y) &&
+            (primary_g_chromaticity_x == rhs.primary_g_chromaticity_x) &&
+            (primary_g_chromaticity_y == rhs.primary_g_chromaticity_y) &&
+            (primary_b_chromaticity_x == rhs.primary_b_chromaticity_x) &&
+            (primary_b_chromaticity_y == rhs.primary_b_chromaticity_y) &&
+            (white_point_chromaticity_x == rhs.white_point_chromaticity_x) &&
+            (white_point_chromaticity_y == rhs.white_point_chromaticity_y) &&
+            (luminance_max == rhs.luminance_max) &&
+            (luminance_min == rhs.luminance_min));
+  }
+  bool operator!=(const MasteringMetadata& rhs) const {
+    return !(*this == rhs);
+  }
+  
+  void log() const;
+};
+
+// HDR metadata common for HDR10 and WebM/VP9-based HDR formats.
+struct HDRMetadata {
+  MasteringMetadata mastering_metadata;
+  unsigned max_content_light_level = 0;
+  unsigned max_frame_average_light_level = 0;
+
+  HDRMetadata() = default;
+  HDRMetadata(const HDRMetadata& rhs) = default;
+  bool operator==(const HDRMetadata& rhs) const {
+    return ((mastering_metadata == rhs.mastering_metadata) &&
+            (max_content_light_level == rhs.max_content_light_level) &&
+            (max_frame_average_light_level == rhs.max_frame_average_light_level));
+  }
+  bool operator!=(const HDRMetadata& rhs) const {
+    return !(*this == rhs);
+  }
+  
+  void log() const;
+};
+
 /// Class for parsing or writing VP codec configuration record.
 class VPCodecConfigurationRecord {
  public:
@@ -168,15 +221,16 @@ class VPCodecConfigurationRecord {
 
   VPCodecConfigurationRecord();
   VPCodecConfigurationRecord(
-      uint8_t profile,
-      uint8_t level,
-      uint8_t bit_depth,
-      uint8_t chroma_subsampling,
-      bool video_full_range_flag,
-      uint8_t color_primaries,
-      uint8_t transfer_characteristics,
-      uint8_t matrix_coefficients,
-      const std::vector<uint8_t>& codec_initialization_data);
+    uint8_t profile,
+    uint8_t level,
+    uint8_t bit_depth,
+    uint8_t chroma_subsampling,
+    bool video_full_range_flag,
+    uint8_t color_primaries,
+    uint8_t transfer_characteristics,
+    uint8_t matrix_coefficients,
+    const std::vector<uint8_t>& codec_initialization_data,
+    const HDRMetadata& hdr_metadata);
   ~VPCodecConfigurationRecord();
 
   /// Parses input (in MP4 format) to extract VP codec configuration record.
@@ -226,6 +280,9 @@ class VPCodecConfigurationRecord {
   void set_matrix_coefficients(uint8_t matrix_coefficients) {
     matrix_coefficients_ = matrix_coefficients;
   }
+  void set_hdr_metadata(HDRMetadata hdr_metadata) {
+    hdr_metadata_ = hdr_metadata;
+  }
 
   bool is_profile_set() const { return static_cast<bool>(profile_); }
   bool is_level_set() const { return static_cast<bool>(level_); }
@@ -247,6 +304,9 @@ class VPCodecConfigurationRecord {
   }
   bool is_chroma_location_set() const {
     return static_cast<bool>(chroma_location_);
+  }
+  bool is_hdr_meatadata_set() const {
+    return static_cast<bool>(hdr_metadata_);
   }
 
   uint8_t profile() const { return profile_.value_or(0); }
@@ -270,7 +330,10 @@ class VPCodecConfigurationRecord {
   uint8_t chroma_location() const {
     return chroma_location_ ? *chroma_location_ : AVCHROMA_LOC_UNSPECIFIED;
   }
-
+  const HDRMetadata* hdr_metadata() const {
+    return is_hdr_meatadata_set() ? &(hdr_metadata_.value()) : NULL;
+  }
+  
  private:
   void UpdateChromaSubsamplingIfNeeded();
 
@@ -283,6 +346,7 @@ class VPCodecConfigurationRecord {
   base::Optional<uint8_t> transfer_characteristics_;
   base::Optional<uint8_t> matrix_coefficients_;
   std::vector<uint8_t> codec_initialization_data_;
+  base::Optional<HDRMetadata> hdr_metadata_;
 
   // Not in the decoder config. It is there to help determine chroma subsampling
   // format.

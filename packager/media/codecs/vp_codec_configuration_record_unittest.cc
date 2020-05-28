@@ -50,7 +50,7 @@ TEST(VPCodecConfigurationRecordTest, WriteMP4) {
       0x02, 0x01, 0x85, 0x03, 0x04, 0x05, 0x00, 0x00,
   };
   VPCodecConfigurationRecord vp_config(0x02, 0x01, 0x08, 0x02, true, 0x03, 0x04,
-                                       0x05, std::vector<uint8_t>());
+                                       0x05, std::vector<uint8_t>(), HDRMetadata());
   std::vector<uint8_t> data;
   vp_config.WriteMP4(&data);
 
@@ -67,7 +67,7 @@ TEST(VPCodecConfigurationRecordTest, WriteWebM) {
       0x04, 0x01, 0x02,
   };
   VPCodecConfigurationRecord vp_config(0x02, 0x01, 0x08, 0x02, true, 0x03, 0x04,
-                                       0x05, std::vector<uint8_t>());
+                                       0x05, std::vector<uint8_t>(), HDRMetadata());
   std::vector<uint8_t> data;
   vp_config.WriteWebM(&data);
 
@@ -165,7 +165,7 @@ TEST(VPCodecConfigurationRecordTest, SetLevel) {
   const uint8_t kUnknownLevel = 0;
   VPCodecConfigurationRecord vp_config(0x02, kUnknownLevel, 0x08, 0x02, true,
                                        0x03, 0x04, 0x05,
-                                       std::vector<uint8_t>());
+                                       std::vector<uint8_t>(), HDRMetadata());
   ASSERT_EQ(kUnknownLevel, vp_config.level());
 
   // kExamples are copied from https://www.webmproject.org/vp9/levels/.
@@ -192,7 +192,7 @@ TEST(VPCodecConfigurationRecordTest, SetLevelWithUnknownFrameDuration) {
   const uint8_t kUnknownLevel = 0;
   VPCodecConfigurationRecord vp_config(0x02, kUnknownLevel, 0x08, 0x02, true,
                                        0x03, 0x04, 0x05,
-                                       std::vector<uint8_t>());
+                                       std::vector<uint8_t>(), HDRMetadata());
   ASSERT_EQ(kUnknownLevel, vp_config.level());
 
   // kExamples are modified from https://www.webmproject.org/vp9/levels/ with

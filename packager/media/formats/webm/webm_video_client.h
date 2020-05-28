@@ -50,7 +50,8 @@ class WebMVideoClient : public WebMParserClient {
   bool OnUInt(int id, int64_t val) override;
   bool OnBinary(int id, const uint8_t* data, int size) override;
   bool OnFloat(int id, double val) override;
-
+  bool HasHDRMetadata();
+  
   int64_t pixel_width_ = -1;
   int64_t pixel_height_ = -1;
   int64_t crop_bottom_ = -1;
@@ -71,8 +72,20 @@ class WebMVideoClient : public WebMParserClient {
   int64_t color_range_ = -1;
   int64_t transfer_characteristics_ = -1;
   int64_t color_primaries_ = -1;
-  int64_t color_max_cll_ = -1;
-  int64_t color_max_fall_ = -1;
+
+  float primary_r_chromaticity_x_ = -1;
+  float primary_r_chromaticity_y_ = -1;
+  float primary_g_chromaticity_x_ = -1;
+  float primary_g_chromaticity_y_ = -1;
+  float primary_b_chromaticity_x_ = -1;
+  float primary_b_chromaticity_y_ = -1;
+  float white_point_chromaticity_x_ = -1;
+  float white_point_chromaticity_y_ = -1;
+  float luminance_max_ = -1;
+  float luminance_min_ = -1;
+
+  int64_t max_content_light_level_ = -1;
+  int64_t max_frame_average_light_level_ = -1;
 
   DISALLOW_COPY_AND_ASSIGN(WebMVideoClient);
 };

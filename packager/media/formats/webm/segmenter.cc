@@ -316,6 +316,24 @@ Status Segmenter::InitializeVideoTrack(const VideoStreamInfo& info,
     if (vp_config.color_primaries() != AVCOL_PRI_UNSPECIFIED) {
       colour.set_primaries(vp_config.color_primaries());
     }
+    if (vp_config.is_hdr_meatadata_set()) {
+      const HDRMetadata& hdr = *vp_config.hdr_metadata();
+      const MasteringMetadata& mm = hdr.mastering_metadata;
+      
+      mkvmuxer::PrimaryChromaticity r(mm.primary_r_chromaticity_x, mm.primary_r_chromaticity_y);
+      mkvmuxer::PrimaryChromaticity g(mm.primary_g_chromaticity_x, mm.primary_g_chromaticity_y);
+      mkvmuxer::PrimaryChromaticity b(mm.primary_b_chromaticity_x, mm.primary_b_chromaticity_y);
+      mkvmuxer::PrimaryChromaticity white_point(mm.white_point_chromaticity_x, mm.white_point_chromaticity_y);
+
+      mkvmuxer::MasteringMetadata mkv_mm;
+      mkv_mm.SetChromaticity(&r, &g, &b, &white_point);
+      mkv_mm.set_luminance_max(mm.luminance_max);
+      mkv_mm.set_luminance_min(mm.luminance_min);
+
+      colour.SetMasteringMetadata(mkv_mm);
+      colour.set_max_cll(hdr.max_content_light_level);
+      colour.set_max_fall(hdr.max_frame_average_light_level);
+    }
     if (!track->SetColour(colour)) {
       return Status(error::INTERNAL_ERROR,
                     "Failed to setup color element for VPx streams");

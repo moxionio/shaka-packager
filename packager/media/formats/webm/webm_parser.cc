@@ -380,16 +380,16 @@ static const ElementIdInfo kSimpleTagIds[] = {
 };
 
 static const ElementIdInfo kColorMasteringMetadataIds[] {
-  {FLOAT, kWebmIdPrimaryRChromaticityX},
-  {FLOAT, kWebmIdPrimaryRChromaticityY},
-  {FLOAT, kWebmIdPrimaryGChromaticityX},
-  {FLOAT, kWebmIdPrimaryGChromaticityY},
-  {FLOAT, kWebmIdPrimaryBChromaticityX},
-  {FLOAT, kWebmIdPrimaryBChromaticityY},
-  {FLOAT, kWebmIdWhitePointChromaticityX},
-  {FLOAT, kWebmIdWhitePointChromaticityY},
-  {FLOAT, kWebmIdLuminanceMax},
-  {FLOAT, kWebmIdLuminanceMin},
+  {FLOAT, kWebMIdPrimaryRChromaticityX},
+  {FLOAT, kWebMIdPrimaryRChromaticityY},
+  {FLOAT, kWebMIdPrimaryGChromaticityX},
+  {FLOAT, kWebMIdPrimaryGChromaticityY},
+  {FLOAT, kWebMIdPrimaryBChromaticityX},
+  {FLOAT, kWebMIdPrimaryBChromaticityY},
+  {FLOAT, kWebMIdWhitePointChromaticityX},
+  {FLOAT, kWebMIdWhitePointChromaticityY},
+  {FLOAT, kWebMIdLuminanceMax},
+  {FLOAT, kWebMIdLuminanceMin},
 };
 
 #define LIST_ELEMENT_INFO(id, level, id_info) \
